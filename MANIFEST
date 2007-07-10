@@ -1,0 +1,6 @@
+MANIFEST
+lib/HTML/Template/Default.pm
+t/templates/duper.html
+t/0.t
+Makefile.PL
+META.yml                                 Module meta-data (added by MakeMaker)
