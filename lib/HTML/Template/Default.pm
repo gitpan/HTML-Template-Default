@@ -12,7 +12,7 @@ use vars qw(@EXPORT_OK @ISA %EXPORT_TAGS);
 %EXPORT_TAGS = ( 
 	all => \@EXPORT_OK,
 );
-our $VERSION = sprintf "%d.%02d", q$Revision: 1.2 $ =~ /(\d+)/g;
+our $VERSION = sprintf "%d.%02d", q$Revision: 1.3 $ =~ /(\d+)/g;
 
 =pod
 
@@ -163,6 +163,8 @@ To set debug:
 
    $HTML::Template::Default::DEBUG = 1;
 
+Gives useful info like if we got from disk or default provided etc to STDERR.
+
 =head1 AUTHOR
 
 Leo Charre leocharre at cpan dot org
@@ -170,6 +172,7 @@ Leo Charre leocharre at cpan dot org
 =head1 SEE ALSO
 
 L<HTML::Template>
+L<LEOCHARRE:DEBUG>
 
 =cut
 

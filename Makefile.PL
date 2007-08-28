@@ -6,6 +6,7 @@ WriteMakefile(
    PREREQ_PM => {
       'HTML::Template' => 0,
       'Carp' => 0,
+      'LEOCHARRE::DEBUG' => '1.02',
    }
 );
 
