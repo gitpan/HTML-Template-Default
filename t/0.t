@@ -1,8 +1,9 @@
 use Test::Simple 'no_plan';
 use strict;
 use lib './lib';
-use HTML::Template::Default qw(get_tmpl);
+use HTML::Template::Default 'get_tmpl';
 use Cwd;
+
 $HTML::Template::Default::DEBUG = 1;
 
 $ENV{TMPL_PATH} = cwd().'/t/templates';
@@ -40,9 +41,6 @@ ok($tmpl = get_tmpl('duper.html', \$default),'get tmpl from disk instead'  );
 $out = $tmpl->output;
 
 ok( $out=~/FROM DISK XYZ/,'correct, is from disk' );
-
-
-
 
 
 
