@@ -44,7 +44,9 @@ ok( $out=~/FROM DISK XYZ/,'correct, is from disk' );
 
 
 
+my $dc = 'test';
 
+ok( get_tmpl(undef,\$dc),'get_tmlpl with undef filename');
 
 
 

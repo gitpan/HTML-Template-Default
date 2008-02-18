@@ -1,6 +1,5 @@
 package HTML::Template::Default;
 use strict;
-use warnings;
 use Carp;
 use HTML::Template;
 use vars qw(@EXPORT_OK @ISA %EXPORT_TAGS $VERSION);
@@ -9,7 +8,7 @@ use vars qw(@EXPORT_OK @ISA %EXPORT_TAGS $VERSION);
 %EXPORT_TAGS = ( 
 	all => \@EXPORT_OK,
 );
-$VERSION = sprintf "%d.%02d", q$Revision: 1.4 $ =~ /(\d+)/g;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.5 $ =~ /(\d+)/g;
 
 
 $HTML::Template::Default::DEBUG = 0;
@@ -17,7 +16,7 @@ $HTML::Template::Default::DEBUG = 0;
 sub DEBUG : lvalue { $HTML::Template::Default::DEBUG }
 
 sub debug {
-	return 1 if DEBUG;
+	DEBUG or return 1;
 	my $msg = shift;
 	print STDERR "# HTML::Template::Default - $msg\n";
 	return 1;
@@ -27,22 +26,24 @@ sub _get_tmpl {
    my $filename = shift;
    $filename or die('missing filename argument to get_tmpl');
 
-   if ( defined $ENV{HTML_TEMPLATE_PATH} and $ENV{HTML_TEMPLATE_PATH} ){
-      if (-f "$ENV{HTML_TEMPLATE_PATH}/$filename"){
-         debug("$filename : ondisk : $ENV{HTML_TEMPLATE_PATH}/$filename\n");
-         return "$ENV{HTML_TEMPLATE_PATH}/$filename";
+   my $abs;
+   
+   if ($filename=~/\//){
+      -f $filename or return;
+      return $filename;
+   }
+
+   for my $path ( $ENV{HTML_TEMPLATE_PATH}, $ENV{TMPL_PATH} ){
+      defined $path or next;
+      
+      $abs = "$path/$filename";
+
+      if( -f $abs){
+         debug("$filename ondisk $abs");
+         return $abs;
       }
-      # otherwise just return if it was set
-      debug("$filename : ondisk : not on disk.\n");
-      return;
    }
 
-   $ENV{TMPL_PATH}||='./';
-
-   if (-f $ENV{TMPL_PATH}."/$filename"){
-      debug("$filename : ondisk : $ENV{TMPL_PATH}/$filename\n");
-      return $ENV{TMPL_PATH}."/$filename";
-   }
    debug("$filename : not on disk.\n");
    return;
 }
@@ -59,10 +60,12 @@ sub get_tmpl {
    my $tmpl;
    my $abs_path; 
    
-   if ( $filename and ($abs_path = _get_tmpl($filename)) ){
+   if ( $filename ){
+      if ($abs_path = _get_tmpl($filename) ){
 
-      $tmpl = new HTML::Template(  filename => $abs_path, die_on_bad_params => 0 ) or die;
-      return $tmpl;
+         $tmpl = new HTML::Template(  filename => $abs_path, die_on_bad_params => 0 ) or die;
+         return $tmpl;
+      }
    }
 
    defined $default_code 
