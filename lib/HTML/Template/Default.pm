@@ -8,8 +8,7 @@ use vars qw(@EXPORT_OK @ISA %EXPORT_TAGS $VERSION);
 %EXPORT_TAGS = ( 
 	all => \@EXPORT_OK,
 );
-$VERSION = sprintf "%d.%02d", q$Revision: 1.6 $ =~ /(\d+)/g;
-use Smart::Comments '###';
+$VERSION = sprintf "%d.%02d", q$Revision: 1.7 $ =~ /(\d+)/g;
 
 $HTML::Template::Default::DEBUG = 0;
 
@@ -123,7 +122,7 @@ sub tmpl {
       }
    }
 
-   carp(__PACKAGE__ ."tmpl() can't instance a template - $debug");
+   carp(__PACKAGE__ ."::tmpl() can't instance a template - $debug");
    return;
 }
 
@@ -223,16 +222,9 @@ These examples will be interpreted as two argument usage when you meant hash usa
 
 
 =head1 EXAMPLE USAGE
-
-
-
-
-
-
-   
    
 
-=head3 Example 1
+=head2 Example 1
 
 In the following example, if main.html does not exist in $ENV{HTML_TEMPLATE_ROOT}, the '$default' 
 code provided is used as the template.
@@ -254,14 +246,14 @@ code need not change. This merely lets you provide a default, optionally.
 Again, if main.html is not in $ENV{HTML_TEMPLATE_ROOT}, it will use default string provided- 
 if no default string provided, and filename is not found, croaks.
 
-=head3 Example 2
+=head2 Example 2
 
 In the following example, the template file 'awesome.html' must exist in $ENV{HTML_TEMPLATE_ROOT}.
 Or the application croaks. Because no default is provided.
 
 	my $tmpl = get_tmpl('awesome.html');
 
-=head3 Example 3
+=head2 Example 3
 
 If you don't provide a filename but do provide a default code, this is ok..
 
@@ -276,7 +268,7 @@ If you want to pass arguments to the template..
    my $tmpl = get_tmpl( filename => 'super.tmpl', scalarref => \$default, case_sensitive => 1 );
    
 
-=head3 Example 5
+=head2 Example 5
 
 In this example we provide both the default code we want, and filename for a file
 on disk that is given higher priority.
