@@ -8,8 +8,8 @@ use vars qw(@EXPORT_OK @ISA %EXPORT_TAGS $VERSION);
 %EXPORT_TAGS = ( 
 	all => \@EXPORT_OK,
 );
-$VERSION = sprintf "%d.%02d", q$Revision: 1.5 $ =~ /(\d+)/g;
-
+$VERSION = sprintf "%d.%02d", q$Revision: 1.6 $ =~ /(\d+)/g;
+use Smart::Comments '###';
 
 $HTML::Template::Default::DEBUG = 0;
 
@@ -22,29 +22,33 @@ sub debug {
 	return 1;
 }
 
-sub _get_tmpl {
+sub _get_abs_tmpl {
    my $filename = shift;
-   $filename or die('missing filename argument to get_tmpl');
+   $filename or return;
+   #$filename or die('missing filename argument to get_tmpl');
 
-   my $abs;
-   
-   if ($filename=~/\//){
-      -f $filename or return;
-      return $filename;
+   my @possible_abs;
+
+   for my $envar ( $ENV{HTML_TEMPLATE_ROOT}, $ENV{TMPL_PATH}, $ENV{HTML_TEMPLATE_ROOT} ){
+      defined $envar or next;
+      push @possible_abs, "$envar/$filename";
    }
 
-   for my $path ( $ENV{HTML_TEMPLATE_PATH}, $ENV{TMPL_PATH} ){
-      defined $path or next;
-      
-      $abs = "$path/$filename";
+   # lastly try the filename
+   push @possible_abs, $filename;
 
-      if( -f $abs){
-         debug("$filename ondisk $abs");
+
+   for my $abs ( @possible_abs ){
+      if( -f $abs ){
+         debug("file found: $abs");
          return $abs;
+      }
+      else {
+         debug("file not found: $abs");
       }
    }
 
-   debug("$filename : not on disk.\n");
+   debug("$filename : not found on disk.\n");
    return;
 }
 
@@ -53,32 +57,78 @@ sub _get_tmpl {
 
 
 sub get_tmpl {
-   my ($filename, $default_code ) = @_;
-   ($filename or $default_code)
-	or confess('no filename provided, no default code provided');
-   
-   my $tmpl;
-   my $abs_path; 
-   
-   if ( $filename ){
-      if ($abs_path = _get_tmpl($filename) ){
+   if( scalar @_ > 3 ){ 
+      debug('over');
+      return tmpl(@_);
+   } 
+   else {
+      debug('under');
+      my %arg;
+      for (@_){
+         defined $_ or next;
+         if( ref $_ eq 'SCALAR' ){
+            $arg{scalarref} = $_;
+            next;
+         }
+         $arg{filename} = $_;
+      }
+      
+      # insert my default params
+      $arg{die_on_bad_params} = 0;
+      
+      return tmpl(%arg);
+   }
 
-         $tmpl = new HTML::Template(  filename => $abs_path, die_on_bad_params => 0 ) or die;
+}
+
+sub tmpl {
+   my %a = @_;
+   defined %a or confess('missing argument');
+
+   ### %a
+
+   my $debug = sprintf 'using filename: %s, using scalarref: %s',
+      ( $a{filename} ? $a{filename} : 'undef' ),
+      ( $a{scalarref} ? 1 : 0 ),
+      ;
+   
+   $a{filename} or $a{scalarref} or confess("no filename or scalarref provided");
+
+
+   if( my $abs = _get_abs_tmpl($a{filename})){
+      
+      my %_a = %a;      
+      #if there is a scalarref, delete it
+      delete $_a{scalarref};
+
+      #replace filename with what we resolved..
+      $_a{filename} = $abs;
+
+      if ( my $tmpl = HTML::Template->new(%_a) ){
+         debug("filename, $debug");
          return $tmpl;
       }
    }
 
-   defined $default_code 
-      and $default_code 
-      or confess("$filename was not found and no default code was provided.");
 
-   ref $default_code 
-      or confess("default code for $filename is not a scalarref");
-      
-   $tmpl = new HTML::Template( die_on_bad_params => 0, scalarref => $default_code ) or die;
+   if( $a{scalarref} ){
+   
+      my %_a = %a;
+      #if there is a filename, delete it
+      delete $_a{filename};
 
-   return $tmpl;        
+      if ( my $tmpl = HTML::Template->new(%_a) ){
+         debug("scalarref - $debug");
+         return $tmpl;
+      }
+   }
+
+   carp(__PACKAGE__ ."tmpl() can't instance a template - $debug");
+   return;
 }
+
+
+
 
 1;
 
@@ -98,13 +148,13 @@ This module allows me to do this, without requiring that tmpl files be in place,
 
 Of course you don't have to use CGI::Application to find this module useful.
 
-The files are sought in $ENV{HTML_TEMPLATE_PATH}, ( $ENV{TMPL_PATH}  will deprecate )
+The files are sought in $ENV{HTML_TEMPLATE_ROOT}
 
 =head1 SYNOPSIS
 
    use HTML::Template::Default 'get_tmpl';
 
-   $ENV{HTML_TEMPLATE_PATH} = '/home/myself/public_html/templates';
+   $ENV{HTML_TEMPLATE_ROOT} = '/home/myself/public_html/templates';
 
    my $default = '
    <html>
@@ -125,38 +175,66 @@ The files are sought in $ENV{HTML_TEMPLATE_PATH}, ( $ENV{TMPL_PATH}  will deprec
    $tmpl->param( TITLE => 'Great Title' );
    $tmpl->param( CONTENT => 'Super cool content is here.' );
 
-   # ...
 
 
-=cut
 
 
-=head1 SUBROUTINES
 
-You must ask to import these.
+=head1 get_tmpl()
 
-=head2 get_tmpl()
-
-Takes two arguments.
+Takes arguments.
 Returns HTML::Template object.
 
-First is a path or filename to an HTML::Template file.
-If the path to template is not absolute (if it's just a filename, ie:'this.html')
-it will seek it inside $ENV{TEMPLATE_PATH}.
+=head2 two argument usage
 
-Second argument, optional, is a scalar with default code for the template.
-This is what allows a user to override the default look by simply creating a file inside 
-the $ENV{HTML_TEMPLATE_PATH}.
+If there are two arguments, the values are to be at least one of the following..
+
+- A path or filename to an HTML::Template file.
+
+- A scalar ref with default code for the template.
+
+Examples:
+
+   my $tmpl = get_tmpl('main.html', \$default_tmpl_html );
+   my $tmpl = get_tmpl('main.html');
+   my $tmpl = get_tmpl(\$default_html);
+
+=head2 hash argument usage
+
+arguments are the same as to HTML::Template constructor.
+The difference is that you can set *both* 'filename' and 'scalarref' arguments,
+and we try to instance via 'filename' first (if it is defined), and second
+via 'scalarref'.
+
+If neither filename or scalarref are defined, will throw a nasty exception with confess.
+
+If returns undef if we cannot instance.
+
+   my $tmpl = get_tmpl( filename => 'main.html', scalarref =>\$default_tmpl_html );
 
 
-Returns HTML::Template object. The HTML::Template object returned will have a die_on_bad_params set to 0.
+=head3 Erroneous usage
 
-(If you are creating a handler, you can use get_tmpl() to provide a default template to feed stuff into.
-This also allows user to place a template of their own in the $ENV{HTML_TEMPLATE_PATH} directory.)
+These examples will be interpreted as two argument usage when you meant hash usage..
+
+   my $tmpl = get_tmpl( filename => 'main.html' ); 
+   my $tmpl = get_tmpl( scalarref => \$default_html );
+
+
+
+=head1 EXAMPLE USAGE
+
+
+
+
+
+
+   
+   
 
 =head3 Example 1
 
-In the following example, if main.html does not exist in $ENV{HTML_TEMPLATE_PATH}, the '$default' 
+In the following example, if main.html does not exist in $ENV{HTML_TEMPLATE_ROOT}, the '$default' 
 code provided is used as the template.
 
 	my $default = "<html>
@@ -168,17 +246,17 @@ code provided is used as the template.
 	</body>	
 	</html>";
 
-	my $tmpl = get_tmpl('main.html',$default);
+	my $tmpl = get_tmpl('main.html', \$default);
 
-To override that template, one would create the file main.html in $ENV{HTML_TEMPLATE_PATH}. The perl
+To override that template, one would create the file main.html in $ENV{HTML_TEMPLATE_ROOT}. The perl
 code need not change. This merely lets you provide a default, optionally.
 
-Again, if main.html is not in $ENV{HTML_TEMPLATE_PATH}, it will use default string provided- 
+Again, if main.html is not in $ENV{HTML_TEMPLATE_ROOT}, it will use default string provided- 
 if no default string provided, and filename is not found, croaks.
 
 =head3 Example 2
 
-In the following example, the template file 'awesome.html' must exist in $ENV{HTML_TEMPLATE_PATH}.
+In the following example, the template file 'awesome.html' must exist in $ENV{HTML_TEMPLATE_ROOT}.
 Or the application croaks. Because no default is provided.
 
 	my $tmpl = get_tmpl('awesome.html');
@@ -188,7 +266,32 @@ Or the application croaks. Because no default is provided.
 If you don't provide a filename but do provide a default code, this is ok..
 
 
-	my $tmpl = get_tmpl(undef,\$defalt_code);
+	my $tmpl = get_tmpl(\$defalt_code);
+
+
+=head2 Example 4
+   
+If you want to pass arguments to the template..
+
+   my $tmpl = get_tmpl( filename => 'super.tmpl', scalarref => \$default, case_sensitive => 1 );
+   
+
+=head3 Example 5
+
+In this example we provide both the default code we want, and filename for a file
+on disk that is given higher priority.
+If the file 'main.html' is on disk, it will be loaded.
+
+   use HTML::Template::Default 'get_tmpl';
+   
+   my $code = '<html><title><TMPL_VAR TITLE></title></html>';
+   
+   my $tmpl = get_tmpl ( 
+      filename => 'main.html',
+      scalarref => \$code,
+      die_on_bad_params => 0,
+      case_sensitive => 1,
+   );
 
 
 
@@ -204,9 +307,17 @@ Gives useful info like if we got from disk or default provided etc to STDERR.
 
 Leo Charre leocharre at cpan dot org
 
+=head1 CAVEATS
+
+In two argument usage, die_on_bad_params is set to 0, if you want to change that, use hash argument.
+
+   get_tmpl(filename => $filename, scalarref => \$code); # leaves HTML::Template defaults intact
+   get_tmpl( $filename, \$scalarref ) # invokes die_on_bad_params => 0
+
+
 =head1 SEE ALSO
 
-L<HTML::Template>
+HTML::Template
 
 =cut
 
