@@ -1,0 +1,48 @@
+2008-06-25 11:44  cvs
+
+	* Changes, lib/HTML/Template/Default.pm: added Changes file to dist
+
+2008-02-27 20:06  cvs
+
+	* lib/HTML/Template/Default.pm, t/0.t: [no log message]
+
+2008-02-17 20:47  cvs
+
+	* lib/HTML/Template/Default.pm, t/0.t: [no log message]
+
+2008-02-17 19:50  cvs
+
+	* lib/HTML/Template/Default.pm, t/0.t: [no log message]
+
+2007-08-28 15:09  cvs
+
+	* Makefile.PL, lib/HTML/Template/Default.pm,
+	  HTML-Template-Default-1.03.tar.gz: [no log message]
+
+2007-08-28 15:02  cvs
+
+	* HTML-Template-Default-1.02.tar.gz: [no log message]
+
+2007-08-27 17:50  cvs
+
+	* lib/HTML/Template/Default.pm, t/0.t,
+	  HTML-Template-Default-1.02.tar.gz: [no log message]
+
+2007-07-10 10:16  cvs
+
+	* META.yml: [no log message]
+
+2007-07-10 10:15  cvs
+
+	* HTML-Template-Default-1.01.tar.gz, MANIFEST: added dist
+
+2007-07-10 10:14  cvs
+
+	* MANIFEST, Makefile.PL, lib/HTML/Template/Default.pm, t/0.t,
+	  t/templates/duper.html: Initial revision
+
+2007-07-10 10:14  cvs
+
+	* MANIFEST, Makefile.PL, lib/HTML/Template/Default.pm, t/0.t,
+	  t/templates/duper.html: init import
+

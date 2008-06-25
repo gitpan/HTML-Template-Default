@@ -8,7 +8,8 @@ use vars qw(@EXPORT_OK @ISA %EXPORT_TAGS $VERSION);
 %EXPORT_TAGS = ( 
 	all => \@EXPORT_OK,
 );
-$VERSION = sprintf "%d.%02d", q$Revision: 1.7 $ =~ /(\d+)/g;
+
+$VERSION = sprintf "%d.%02d", q$Revision: 1.8 $ =~ /(\d+)/g;
 
 $HTML::Template::Default::DEBUG = 0;
 
