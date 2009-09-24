@@ -1,13 +1,23 @@
-# http://module-build.sourceforge.net/META-spec.html
-#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
-name:         HTML-Template-Default
-version:      1.08
-version_from: lib/HTML/Template/Default.pm
-installdirs:  site
+--- #YAML:1.0
+name:               HTML-Template-Default
+version:            1.09
+abstract:           provide multiple template sources and use a default
+author:
+    - Leo Charre leocharre at cpan dot org
+license:            perl
+distribution_type:  module
+configure_requires:
+    ExtUtils::MakeMaker:  0
+build_requires:
+    ExtUtils::MakeMaker:  0
 requires:
-    Carp:                          0
-    HTML::Template:                0
-    LEOCHARRE::DEBUG:              1.02
-
-distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.30
+    Carp:            0
+    HTML::Template:  1.9
+no_index:
+    directory:
+        - t
+        - inc
+generated_by:       ExtUtils::MakeMaker version 6.54
+meta-spec:
+    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
+    version:  1.4

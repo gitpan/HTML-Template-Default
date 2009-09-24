@@ -25,7 +25,20 @@ my $tmpl;
 
 
 
-ok( $tmpl= get_tmpl('super.tmpl', \$default), 'got default because none on disk'); 
+ok( $tmpl= get_tmpl('super.tmpl', \q{   <html>
+   <head>
+   <title><TMPL_VAR TITLE></title>
+   </head>
+   <body>
+   <h1><TMPL_VAR TITLE></h1>
+   <p><TMPL_VAR CONTENT></p>   
+   </body>
+   </html>
+}), 'got default because none on disk');
+
+
+
+#\$default), 'got default because none on disk'); 
 
 #$tmpl->param( TITLE => 'Great Title' );
 #$tmpl->param( CONTENT => 'Super cool content is here.' );
