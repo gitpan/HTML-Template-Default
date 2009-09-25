@@ -2,8 +2,6 @@ package HTML::Template::Default;
 use strict;
 use Carp;
 use base 'HTML::Template';
-
-#use HTML::Template;
 use LEOCHARRE::Debug;
 use vars qw(@EXPORT_OK @ISA %EXPORT_TAGS $VERSION);
 @ISA = qw(Exporter);
@@ -11,7 +9,7 @@ use vars qw(@EXPORT_OK @ISA %EXPORT_TAGS $VERSION);
 %EXPORT_TAGS = ( 
 	all => \@EXPORT_OK,
 );
-$VERSION = sprintf "%d.%02d", q$Revision: 1.9 $ =~ /(\d+)/g;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.10 $ =~ /(\d+)/g;
 
 
 sub _get_abs_tmpl {

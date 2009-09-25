@@ -1,11 +1,8 @@
 use Test::Simple 'no_plan';
 use strict;
 use lib './lib';
-#use HTML::Template::Default 'get_tmpl';
 use Cwd;
-#use HTML::Template::New;
 use HTML::Template::Default;
-#$HTML::Template::New::DEBUG = 1;
 $HTML::Template::Default::DEBUG = 1;
 
 #$ENV{TMPL_PATH} = cwd().'/t/templates';

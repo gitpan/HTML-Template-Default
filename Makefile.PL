@@ -8,6 +8,7 @@ WriteMakefile(
    LICENSE => 'perl',
    PREREQ_PM => {
       'HTML::Template' => '1.9',
+      'LEOCHARRE::Debug' => 0,
       'Carp' => 0,
    }
 );
